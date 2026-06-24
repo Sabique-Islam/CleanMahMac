@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  shellcheck:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install ShellCheck
+        run: brew install shellcheck
+
+      - name: Lint shell scripts
+        run: |
+          find . -type f \( -name '*.sh' -o -name 'cmm' -o -name 'install.sh' -o -name 'uninstall.sh' \) \
+            ! -path './tests/fixtures/*' \
+            -print0 | xargs -0 shellcheck -x
+
+  tests:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run tests
+        run: ./tests/run-tests.sh
