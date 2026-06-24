@@ -1,0 +1,169 @@
+#!/usr/bin/env bash
+# shellcheck shell=bash
+# CleanMahMac — developer-first macOS disk cleanup CLI.
+# Command: cmm (not CleanMahMac)
+
+set -euo pipefail
+
+cmm_resolve_script_dir() {
+  local source="${BASH_SOURCE[0]}"
+  local dir
+
+  while [[ -L "$source" ]]; do
+    dir="$(cd "$(dirname "$source")" && pwd)"
+    source="$(readlink "$source")"
+    [[ "$source" != /* ]] && source="${dir}/${source}"
+  done
+
+  cd "$(dirname "$source")" && pwd
+}
+
+CMM_ROOT="$(cmm_resolve_script_dir)"
+export CMM_ROOT
+
+# Minimal bootstrap for permission checks before dispatching scripts.
+# shellcheck source=scripts/utils/colors.sh
+source "${CMM_ROOT}/scripts/utils/colors.sh"
+# shellcheck source=scripts/utils/logger.sh
+source "${CMM_ROOT}/scripts/utils/logger.sh"
+# shellcheck source=scripts/utils/permissions.sh
+source "${CMM_ROOT}/scripts/utils/permissions.sh"
+
+CMM_DRY_RUN=1
+CMM_FORCE=0
+CMM_YES=0
+CMM_DOCKER_VOLUMES=0
+
+cmm_version() {
+  printf 'cmm (CleanMahMac) 0.1.0\n'
+}
+
+cmm_usage() {
+  cat <<'EOF'
+CleanMahMac — reclaim dev junk, keep your source code.
+
+Usage:
+  cmm scan                          Scan all modules (dry-run, no deletes)
+  cmm report                        Readable summary by module
+  cmm doctor                        Detect disk hogs and anomalies
+  cmm configure [scan-roots|show]   Set scan folders (arrow-key picker)
+  cmm fix-permissions               Make all repo scripts executable
+  cmm clean <module|all> [options]  Clean a specific module or everything
+
+Modules:
+  xcode, docker, android, flutter, node, python, rust, go, java,
+  homebrew, abandoned-node-modules, all
+
+Options:
+  --force       Actually delete (still prompts unless --yes)
+  --yes         Skip confirmation prompts
+  --volumes     Include Docker volumes (with clean docker)
+  -h, --help    Show help
+  -v, --version Show version
+
+Examples:
+  cmm scan
+  cmm report
+  cmm doctor
+  cmm configure                     Set scan folders (includes ~/Downloads if you want)
+  cmm clean abandoned-node-modules
+  cmm clean xcode --force
+  cmm clean all --force --yes
+
+Safety:
+  Dry-run is the default. Every clean shows exactly what will be removed.
+  Protected paths are never touched. No blind rm -rf. No telemetry. Ever.
+
+Note: the command is `cmm`, not `CleanMahMac`. We're not that kind of app.
+EOF
+}
+
+CMM_REMAINING_ARGS=()
+
+cmm_parse_global_flags() {
+  CMM_REMAINING_ARGS=()
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --force)
+        CMM_DRY_RUN=0
+        CMM_FORCE=1
+        shift
+        ;;
+      --yes)
+        CMM_YES=1
+        shift
+        ;;
+      --volumes)
+        CMM_DOCKER_VOLUMES=1
+        shift
+        ;;
+      -h|--help)
+        cmm_usage
+        exit 0
+        ;;
+      -v|--version)
+        cmm_version
+        exit 0
+        ;;
+      *)
+        CMM_REMAINING_ARGS+=("$1")
+        shift
+        ;;
+    esac
+  done
+  export CMM_DRY_RUN CMM_FORCE CMM_YES CMM_DOCKER_VOLUMES
+}
+
+main() {
+  if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    cmm_usage
+    exit 0
+  fi
+  if [[ "${1:-}" == "-v" || "${1:-}" == "--version" ]]; then
+    cmm_version
+    exit 0
+  fi
+
+  local cmd="${1:-}"
+  shift || true
+
+  cmm_parse_global_flags "$@"
+  if ((${#CMM_REMAINING_ARGS[@]} > 0)); then
+    set -- "${CMM_REMAINING_ARGS[@]}"
+  else
+    set --
+  fi
+
+  case "$cmd" in
+    scan)
+      cmm_exec_script "${CMM_ROOT}/scripts/scan.sh" "$@"
+      ;;
+    report)
+      cmm_exec_script "${CMM_ROOT}/scripts/report.sh" "$@"
+      ;;
+    doctor)
+      cmm_exec_script "${CMM_ROOT}/scripts/doctor.sh" "$@"
+      ;;
+    configure)
+      cmm_exec_script "${CMM_ROOT}/scripts/configure.sh" "$@"
+      ;;
+    fix-permissions)
+      cmm_exec_script "${CMM_ROOT}/scripts/fix-permissions.sh" "$@"
+      ;;
+    clean)
+      cmm_exec_script "${CMM_ROOT}/scripts/clean.sh" "$@"
+      ;;
+    ''|-h|--help|help)
+      cmm_usage
+      ;;
+    *)
+      # shellcheck source=scripts/utils/common.sh
+      source "${CMM_ROOT}/scripts/utils/common.sh"
+      cmm_log_error "Unknown command: $cmd"
+      cmm_usage >&2
+      exit 1
+      ;;
+  esac
+}
+
+main "$@"
