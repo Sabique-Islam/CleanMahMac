@@ -1,21 +1,14 @@
-# CleanMahMac
+<div align="center">
+  <img src="https://github.com/Sabique-Islam/CleanMahMac/blob/master/.github/assets/sprite.png" alt="CleanMahMac Banner" width="100%">
+</div>
+
+---
 
 **Reclaim disk space from dev junk — without the black box.**
 
 CleanMahMac is a macOS CLI that cleans **regenerable** development caches and abandoned dependencies.
 
 The command is **`cmm`**, not `CleanMahMac`.
-
-## Why this exists
-
-Your Mac didn't run out of space because you wrote too much code. It ran out because:
-
-- Xcode DerivedData has been fermenting since 2019
-- Docker.raw became a small moon
-- Seventeen abandoned side projects each have a 2 GB `node_modules`
-- Gradle, npm, and Homebrew caches formed a sediment layer
-
-CleanMahMac finds that stuff, shows you exactly what it is, and only deletes after you say so.
 
 ## Safety guarantees
 
@@ -190,25 +183,6 @@ Run `cmm scan` to see your actual numbers before deleting anything.
 
 See `scripts/dev/node.sh` for a minimal example.
 
-## Project structure
-
-```
-clean-mah-mac/
-├── cmm                 # CLI entrypoint (the command you run)
-├── install.sh
-├── uninstall.sh
-├── configs/
-├── scripts/
-│   ├── scan.sh
-│   ├── report.sh
-│   ├── doctor.sh
-│   ├── clean.sh
-│   ├── all.sh
-│   ├── dev/            # One module per cleaner
-│   └── utils/          # Shared helpers
-├── tests/
-└── docs/
-```
 
 ## Development
 
