@@ -1,0 +1,25 @@
+# Paths CleanMahMac is allowed to clean (prefix allowlist)
+# One path per line; # comments and blank lines ignored
+
+~/Library/Developer/Xcode/DerivedData
+~/Library/Developer/Xcode/Archives
+~/Library/Developer/Xcode/iOS DeviceSupport
+~/Library/Developer/CoreSimulator
+~/Library/Caches/org.swift.swiftpm
+~/.npm
+~/.pnpm-store
+~/Library/Caches/Yarn
+~/.cache/pip
+~/.cache/uv
+~/Library/Caches/pypoetry
+~/.cargo/registry
+~/.cargo/git
+~/go/pkg/mod
+~/Library/Caches/go-build
+~/.gradle/caches
+~/.m2/repository
+~/.pub-cache
+~/Library/Caches/Homebrew
+~/.android
+~/.gradle
+~/Library/Android

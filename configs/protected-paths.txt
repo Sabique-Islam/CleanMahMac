@@ -1,0 +1,23 @@
+# Paths CleanMahMac must NEVER delete entirely.
+# User home subfolders (~/Downloads, ~/Documents, etc.) block only exact matches —
+# node_modules inside projects there can still be removed after confirmation.
+# System paths block the path and everything beneath them.
+
+~
+~/Desktop
+~/Documents
+~/Downloads
+~/Pictures
+~/Movies
+~/Music
+/Library
+/System
+/Applications
+/usr
+/bin
+/sbin
+/etc
+/var
+/private
+/opt/homebrew/bin
+/usr/local/bin

@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "defaults": {
+    "dry_run": true,
+    "abandoned_days": 15,
+    "scan_roots": [
+      "~/Projects",
+      "~/Code",
+      "~/Workspace",
+      "~/Developer",
+      "~/Documents"
+    ],
+    "project_markers": [
+      "package.json",
+      "pnpm-lock.yaml",
+      "yarn.lock",
+      "package-lock.json"
+    ],
+    "doctor": {
+      "docker_raw_warn_gb": 50,
+      "log_file_warn_mb": 500,
+      "cache_growth_warn_gb": 10
+    }
+  },
+  "modules": [
+    "xcode",
+    "docker",
+    "android",
+    "flutter",
+    "node",
+    "python",
+    "rust",
+    "go",
+    "java",
+    "homebrew",
+    "abandoned-node-modules"
+  ]
+}
